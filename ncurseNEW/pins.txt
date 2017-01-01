@@ -1,0 +1,8 @@
+;Steppers
+axeX:A0,B2,C3,D12
+axeY:A13,B14,C30,D21
+axeZ:A22,B23,C24,D25
+;Pins sensors axs
+axeX:A8,B9
+axeY:A7,B27
+axeZ:A28,B29

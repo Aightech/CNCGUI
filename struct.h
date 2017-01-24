@@ -50,9 +50,10 @@ typedef struct _Tool {//the cnc
 
 typedef struct _Controller {//the cnc
 	
-	
+	char * filePath;
 	char *readableChar;
-	int** instruction;
+	int nbOfreadableChar;
+	float** instruction;
 	
 	
 }Controller;

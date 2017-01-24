@@ -13,4 +13,5 @@
 int addStr(char * target,char * add1,char * add2);
 char *intTostr(int nb);
 int strToint(char *nbr);
+float parsenumber(char *line,char key, float ifnot);
 #endif

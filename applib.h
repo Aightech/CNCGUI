@@ -1,7 +1,6 @@
-#ifndef MAPPING_H
-#define MAPPING_H
-#include "struct.h"
+#ifndef APPLIB_H
+#define APPLIB_H
 
-Map* initApp();
+char ** getFiles(char* path);
 
 #endif

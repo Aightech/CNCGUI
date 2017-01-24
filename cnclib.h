@@ -11,6 +11,8 @@
 */
 
 CNC * initCNC();
+Controller *initController();
+float ** getGCode(CNC *cnc);
 
 
 

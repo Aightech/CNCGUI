@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstring>
 
 
 /*! \file strlib.c
@@ -60,4 +61,11 @@ int strToint(char *nbr)
 	}
 	
 	return (neg==0)?n:-n;
+}
+
+float parsenumber(char *line,char key, float ifnot)
+{/*look for the key in the buffer,
+  if found send back the float following,
+  else send back ifnot*/
+  return ((line=strchr(line,key))!=NULL?atof(line+1):ifnot);
 }

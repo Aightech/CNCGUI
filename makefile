@@ -1,22 +1,23 @@
 
 # options de compilation
 CC = g++
-CCFLAGS = -Wall -Wno-switch -Wno-write-strings -I $(LIBDIR)/include
+CCFLAGS = -g -Wall -Wno-switch -Wno-write-strings -I $(LIBDIR)/include
 LIBS = -L $(LIBDIR)/lib
 LDFLAGS = -lm -lncurses -lpanel -lwiringPi
 
 # fichiers du projet
-SRC = main.c guilib.c 
+SRC = main.c guilib.c applib.c cnclib.c strlib.c
 OBJ = $(SRC:.c=.o)
 EXEC = test
 
 
 # règle initiale
-all: $(EXEC) clean
+all: $(EXEC) 
 
 # dépendance des .h
-main.o: guilib.h applib.h struct.h
-guilib.o: guilib.h strlib.h struct.h
+main.o: guilib.h applib.h struct.h strlib.h
+guilib.o: guilib.h applib.h strlib.h struct.h
+applib.o: applib.h guilib.h strlib.h struct.h
 
 
 # règles de compilation

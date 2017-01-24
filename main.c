@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "guilib.h"
 #include "cnclib.h"
 #include "guilib.h"
-
-
-
+#include "applib.h"
+#include "strlib.h"
 
 int main()
 {
@@ -18,33 +16,20 @@ int main()
 		switch(choice)
 		{
 			case 0:
-				//selectFile(A,0,3,9);	
+				char **listFiles  = getFiles("./GCode");
+				addStr(cnc->controller->filePath,"./GCode/",selectL(cnc->application,0, 3, 8,listFiles));
+				freeList(listFiles);
+				printf("%s",cnc->controller->filePath);
+				getGCode(cnc);
 			break;
 			
-			
-			/*PLAYER MODES*/
-			case 50://DO NOTHING
-			case 51://MANUAL
-			case 52://RANDOM
-			case 53://ASTAR
-				
-				choice+=10;
-			break;
-			
-			/*OPONENT MODES*/
-			case 60://DO NOTHING
-			case 61://MANUAL
-			case 62://RANDOM MOVEP
-			case 63://RANDOM MOVEP&M
-			case 64://ASTAR
-				
-				choice=30;
-			break;
 				
    
 			
 		}
 	}
+	freeGUI(cnc->application);
+	free(cnc);
 
 	return 0;
 }

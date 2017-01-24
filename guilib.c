@@ -4,7 +4,7 @@
 #include <ncurses.h>
 #include <panel.h>
 
-#include <dirent.h>
+
 #include <string.h>
 
 #include "struct.h"
@@ -142,10 +142,7 @@ App* initGUI()
 	A->guiWins[9]->numButt=0;
 	
 	
-	
-	
-	
-		
+
 	
 	for(i = 0; i < nbrW; ++i)
 	{
@@ -158,6 +155,31 @@ App* initGUI()
 	update_panels();
 	doupdate();
 	return A;
+}
+
+void freeGUI(App * A)
+{
+	int i,j;
+	/*Déallocation*/
+	
+	for(i = 0; i < nbrW; ++i)
+	{
+		for(j=0;j<A->guiWins[i]->numButt;j++){
+			free(A->guiWins[i]->posButt[j]);
+			free(A->guiWins[i]->labButt[j]);
+		}
+		if(A->guiWins[i]->numButt!=0)
+		{
+			free(A->guiWins[i]->posButt);
+			free(A->guiWins[i]->labButt);
+		}
+	}
+	free(A->guiWins);
+	
+	
+	
+	free(A);
+	
 }
 
 int GUI(App *A,int lstGUIch)
@@ -314,7 +336,7 @@ char* selectL(App *A, int w, int starty, int startx,char ** list)
 	while(list[sizeL]!=NULL){sizeL++;}//count the number of item to display
 	
   	Win* directory = (Win *)malloc(sizeof(Win));
-  	directory->win=newwin(sizeL+4,addStr(label,list[0],"")+6,y,x);
+  	directory->win=newwin(sizeL+4,addStr(label,list[0],"")+10,y,x);
   	addStr(directory->label,"choose","");
   	directory->numButt=0;
   	
@@ -374,8 +396,9 @@ char* selectL(App *A, int w, int starty, int startx,char ** list)
 	wclear(directory->win);
 	A->panels[nbrW] = NULL;
 	for(i=0;i<nbrW;i++)
-		top_panel(L->panels[i]);
-
+		top_panel(A->panels[i]);
+	
+	free(directory);
 	mvwprintw(win->win, starty+1, startx+1, "%s", list[highlight]);
 	update_panels();
 	doupdate();
@@ -386,6 +409,20 @@ char* selectL(App *A, int w, int starty, int startx,char ** list)
 			
 }
 
+void freeList(char ** list)
+{
+	int u=0;
+	if(list!=NULL)
+	{
+		while(list[u]!=NULL)
+		{
+			free(list[u]);
+			u++;
+		}
+		free(list);
+	}
+	
+}
 
 
 

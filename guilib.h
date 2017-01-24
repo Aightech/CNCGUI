@@ -11,8 +11,6 @@ int choice(Win *win,int lstCh);
 int selectFile(App *A,int w, int starty, int startx);
 
 
-void addStr(char * target,char * add1,char * add2);
-char *intTostr(int nb);
 
 
 

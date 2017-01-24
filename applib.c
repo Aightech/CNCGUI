@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "guilib.h"
 #include "struct.h"
 #include "applib.h"
-#include <unistd.h>
+
+
+
+
 
 
 
@@ -19,40 +23,43 @@ App* initApp()
 	
 }
 
-
-
-
-void addStr(char *target,char *add1,char *add2)
+char** getFiles(App *A)
 {
-	while(*add1)
+	DIR *dir;
+	struct dirent *ent;
+	const char *path="."; 
+	if ((dir = opendir(path)) != NULL) 
 	{
-		*target=*add1;
-		target++;
-		add1++;
-	}
-	while(*add2)
-	{
-		*target=*add2;
-		target++;
-		add2++;
-	}
-	*target='\0';
-}
-
-char *intTostr(int nb)
-{
-	int i=10,n=1;
-	while(nb>i){i*=10;n++;}
+		int num =0;
+	 	while ((ent = readdir(dir)) != NULL) {if(ent->d_name[0]!='.')num++;}
+	 	closedir (dir); 
 	
-	char* nbch=(char*)malloc(sizeof(n+1));
-	nbch[n]='\0';
-	while(n>0)
+		
+		char **filesList= (char **) malloc(num*sizeof(char*));
+		int u=0;
+		dir = opendir(Path);
+	  	while ((ent = readdir(dir)) != NULL) 
+		{
+			if(ent->d_name[0]!='.')
+			{
+				filesList[u]= (char *) malloc(30*sizeof(char));
+				addStr(filesList[u],ent->d_name,"");
+		    	u++;
+	    	}
+		}
+		closedir(dir);
+		  
+		return filesList;
+	  
+	} 
+	else 
 	{
-		nbch[n-1]='0'+ nb%10;
-		nb/=10;
-		n--;
+	/* could not open directory */
+		perror ("");
+		mvwprintw(win->win, 4, 13, "could not open directory ");
+		return NULL;
 	}
-	return nbch;
+			
 }	
 	
 	

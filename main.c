@@ -2,19 +2,23 @@
 #include <stdlib.h>
 
 #include "guilib.h"
+#include "cnclib.h"
+#include "guilib.h"
+
+
 
 
 int main()
 {
-	App *A = initGUI();
-	int choice=30;
+	CNC *cnc = initCNC();
+	int choice=0;
 	while(choice!=-1)
 	{	
-		choice=GUI(A,choice);
+		choice=GUI(cnc->application,choice);
 		switch(choice)
 		{
 			case 0:
-				selectFile(A,0,3,9);	
+				//selectFile(A,0,3,9);	
 			break;
 			
 			

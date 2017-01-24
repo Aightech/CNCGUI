@@ -9,12 +9,12 @@
 
 #include "struct.h"
 #include "guilib.h"
+#include "strlib.h"
 
 
 App* initGUI()
 {
 	App* A=(App *) malloc(sizeof(App));
-	A->fPath=(char *)malloc(100*sizeof(char));
 	A->width=21;
 	A->heigth=12;
 
@@ -301,146 +301,91 @@ int choice(Win *win,int lstCh)
 	return highlight;
 }
 
-void addStr(char *target,char *add1,char *add2)
-{
-	while(*add1)
-	{
-		*target=*add1;
-		target++;
-		add1++;
-	}
-	while(*add2)
-	{
-		*target=*add2;
-		target++;
-		add2++;
-	}
-	*target='\0';
-}
 
-char *intTostr(int nb)
-{
-	int i=10,n=1;
-	while(nb>i){i*=10;n++;}
-	
-	char* nbch=(char*)malloc(sizeof(n+1));
-	nbch[n]='\0';
-	while(n>0)
-	{
-		nbch[n-1]='0'+ nb%10;
-		nb/=10;
-		n--;
-	}
-	return nbch;
-}	
-
-int selectFile(App *A, int w, int starty, int startx)
+char* selectL(App *A, int w, int starty, int startx,char ** list)
 {
 	Win *win=A->guiWins[w];
-	DIR *dir;
-	struct dirent *ent;
-	addStr(A->fPath,".","");
+	int x, y,highlight=0,ch=0,i;
+	getbegyx(win->win, y, x);
+	x+=startx;
+	y+=starty;
+	char label[50];
+	int sizeL=0;
+	while(list[sizeL]!=NULL){sizeL++;}//count the number of item to display
 	
-	if ((dir = opendir (A->fPath)) != NULL) 
-	{
-		int num =0;
-	 	while ((ent = readdir (dir)) != NULL) {if(ent->d_name[0]!='.')num++;}
-	 	closedir (dir); 
-	
-	
-	  	Win* directory = (Win *)malloc(nbrW*sizeof(Win));
-	  	directory->win=newwin(num+4,25,starty,startx);
-	  	addStr(directory->label,"choose","");
-	  	directory->numButt=0;
-	  	
-		showWin(directory);
-		A->panels[nbrW] = new_panel(directory->win);
-		top_panel(A->panels[nbrW]);
-		update_panels();
-		doupdate();
-		
-		char *filesLab[num];
-		int u=0;
-		dir = opendir (A->fPath);
-	  	while ((ent = readdir (dir)) != NULL) 
+  	Win* directory = (Win *)malloc(sizeof(Win));
+  	directory->win=newwin(sizeL+4,addStr(label,list[0],"")+6,y,x);
+  	addStr(directory->label,"choose","");
+  	directory->numButt=0;
+  	
+  	for(i=0;i<sizeL;i++) 
+		mvwprintw(directory->win, 3+i, 2, list[i]);
+  	
+	showWin(directory);
+	A->panels[nbrW] = new_panel(directory->win);
+	top_panel(A->panels[nbrW]);
+	update_panels();
+	doupdate();
+  	
+	while(ch != 10)
+	{	
+		for(i =0;i<sizeL;i++)
 		{
-			if(ent->d_name[0]!='.')
-			{
-				filesLab[u]=ent->d_name;
-				mvwprintw(directory->win, 3+u, 2, "%s", ent->d_name);
-		    		u++;
-	    		}
-		}
-		int highlight=0;
-		int ch=0,i;
-		while(ch != 10)
-		{	
-			for(i =0;i<num;i++)
-			{
-				if(highlight == i) /* High light the present choice */
-				{	
-					wattron(directory->win, A_REVERSE); 
-					mvwprintw(directory->win, 3+i, 2, "%s", filesLab[i]);
-					wattroff(directory->win, A_REVERSE);
-				}
-				else
-					mvwprintw(directory->win, 3+i, 2, "%s", filesLab[i]);
-			}
-			update_panels();
-			doupdate();
-			ch = getch();
-			switch(ch)
+			if(highlight == i)
 			{	
-				case KEY_LEFT:
-					if(highlight == 0)
-						highlight = num-1;
-					else
-						--highlight;
-					break;
-				case KEY_RIGHT:
-					if(highlight == num-1)
-						highlight = 0;
-					else 
-						++highlight;
-					break;
-				case KEY_UP:
-					if(highlight == 0)
-						highlight = num-1;
-					else
-						--highlight;
-					break;
-				case KEY_DOWN:
-					if(highlight == num-1)
-						highlight = 0;
-					else 
-						++highlight;
-					break;
+				wattron(directory->win, A_REVERSE); 
+				mvwprintw(directory->win, 3+i, 2, "%s", list[i]);
+				wattroff(directory->win, A_REVERSE);
 			}
+			else
+				mvwprintw(directory->win, 3+i, 2, "%s", list[i]);
 		}
-		wclear(directory->win);
-		A->panels[nbrW] = NULL;
-		for(i=0;i<4;i++)
-			top_panel(A->panels[i]);
-
-
-		mvwprintw(win->win, 4, 10, "/%s", filesLab[highlight]);
-		addStr(A->fPath,"./",filesLab[highlight]);
 		update_panels();
 		doupdate();
-		closedir (dir);
-		  
-		return 1;
-	  
-	} 
-	else 
-	{
-	/* could not open directory */
-		perror ("");
-		mvwprintw(win->win, 4, 13, "could not open directory ");
-		return 0;
+		ch = getch();
+		switch(ch)
+		{	
+			case KEY_LEFT:
+				if(highlight == 0)
+					highlight = sizeL-1;
+				else
+					--highlight;
+				break;
+			case KEY_RIGHT:
+				if(highlight == sizeL-1)
+					highlight = 0;
+				else 
+					++highlight;
+				break;
+			case KEY_UP:
+				if(highlight == 0)
+					highlight = sizeL-1;
+				else
+					--highlight;
+				break;
+			case KEY_DOWN:
+				if(highlight == sizeL-1)
+					highlight = 0;
+				else 
+					++highlight;
+				break;
+		}
 	}
+	wclear(directory->win);
+	A->panels[nbrW] = NULL;
+	for(i=0;i<nbrW;i++)
+		top_panel(L->panels[i]);
+
+	mvwprintw(win->win, starty+1, startx+1, "%s", list[highlight]);
+	update_panels();
+	doupdate();
+	  
+	return list[highlight];
+	  
+	
 			
 }
+
 
 
 

@@ -12,7 +12,10 @@
 
 CNC * initCNC();
 Controller *initController();
+Tool *initTools();
+Stepper** setSteppers(CNC* cnc);
 float ** getGCode(CNC *cnc);
+void manualMv(CNC * cnc,int axis,int step);
 
 
 

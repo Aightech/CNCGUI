@@ -4,12 +4,47 @@
 
 
 #define NBRofTOOLS 1
-#define NBRofAXES 3
+#define NBRofSTPR 3
+
+
+#define X_AXIS 0
+#define STPX_PIN1 23
+#define STPX_PIN2 22
+#define STPX_PIN3 24
+#define STPX_PIN4 25
+#define STPX_SWITCHMAX_PIN 29
+#define STPX_SWITCHMIN_PIN 8
+#define STPX_INIT_SPEED 240
+#define STPX_NBRofSTEP 200
+
+#define Y_AXIS 1
+#define STPY_PIN1 13
+#define STPY_PIN2 14
+#define STPY_PIN3 30
+#define STPY_PIN4 21
+#define STPY_SWITCHMAX_PIN 28
+#define STPY_SWITCHMIN_PIN 27
+#define STPY_INIT_SPEED 240
+#define STPY_NBRofSTEP 200
+
+#define Z_AXIS 2
+#define STPZ_PIN1 0
+#define STPZ_PIN2 2
+#define STPZ_PIN3 3
+#define STPZ_PIN4 12
+#define STPZ_SWITCHMAX_PIN 9
+#define STPZ_SWITCHMIN_PIN 7
+#define STPZ_INIT_SPEED 240
+#define STPZ_NBRofSTEP 200
+
+
+
+
 #define nbrW 10
 
 #include <panel.h>
 #include <ncurses.h>
-#include "Stepper.h"
+#include "stplib.h"
 
 
 typedef struct _Win {
@@ -44,7 +79,7 @@ typedef struct _Axis {//the cnc
 
 typedef struct _Tool {//the cnc
 
-	
+	int * pos;
 	
 }Tool;
 
@@ -53,7 +88,8 @@ typedef struct _Controller {//the cnc
 	char * filePath;
 	char *readableChar;
 	int nbOfreadableChar;
-	float** instruction;
+	float** instructions;
+	int nbOfInstruct;
 	
 	
 }Controller;
@@ -62,9 +98,10 @@ typedef struct _CNC {//the cnc
 
 	App* application;
 	
-	Stepper* stpr[NBRofAXES];
+	Stepper** steppers;
+	int* stprSpeeds;
 	
-	Tool* tools[NBRofTOOLS];
+	Tool* tools;
 	
 	Controller* controller;
 	

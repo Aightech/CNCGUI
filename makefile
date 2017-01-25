@@ -6,18 +6,19 @@ LIBS = -L $(LIBDIR)/lib
 LDFLAGS = -lm -lncurses -lpanel -lwiringPi
 
 # fichiers du projet
-SRC = main.c guilib.c applib.c cnclib.c strlib.c
+SRC = main.c guilib.c applib.c cnclib.cpp strlib.c stplib.cpp
 OBJ = $(SRC:.c=.o)
-EXEC = test
+EXEC = test 
 
 
 # règle initiale
-all: $(EXEC) 
-
+all: $(EXEC)
 # dépendance des .h
 main.o: guilib.h applib.h struct.h strlib.h
 guilib.o: guilib.h applib.h strlib.h struct.h
 applib.o: applib.h guilib.h strlib.h struct.h
+cnclib.o: stplib.h applib.h guilib.h strlib.h struct.h 
+stplib.o: stplib.h
 
 
 # règles de compilation

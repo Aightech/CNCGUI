@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <wiringPi.h>
 
 #include "cnclib.h"
 #include "guilib.h"
@@ -8,6 +9,7 @@
 
 int main()
 {
+	wiringPiSetup();
 	CNC *cnc = initCNC();
 	int choice=0;
 	while(choice!=-1)
@@ -16,11 +18,22 @@ int main()
 		switch(choice)
 		{
 			case 0:
+			{
 				char **listFiles  = getFiles("./GCode");
 				addStr(cnc->controller->filePath,"./GCode/",selectL(cnc->application,0, 3, 8,listFiles));
 				freeList(listFiles);
 				printf("%s",cnc->controller->filePath);
-				getGCode(cnc);
+				cnc->controller->instructions =getGCode(cnc);
+			}
+			break;
+			case 11:
+				manualMv(cnc,X_AXIS,2000);
+			break;
+			case 12:
+				manualMv(cnc,Y_AXIS,2000);
+			break;
+			case 13:
+				manualMv(cnc,Z_AXIS,2000);
 			break;
 			
 				

@@ -313,7 +313,7 @@ void moveLine(CNC * cnc,int newx,int newy)
 
 	long i;
 	long over=0;
-
+	
 	if(dx>dy) 
 	{
 		over=dx/2;
@@ -346,11 +346,65 @@ void moveLine(CNC * cnc,int newx,int newy)
 	}
 
 	currPos[0]+=dirx*dx;
-	currPos[1]+=dirx*dy;
+	currPos[1]+=diry*dy;
 	mvwprintw(cnc->application->guiWins[5]->win,3, 3, "%d   ",currPos[0]);
 	mvwprintw(cnc->application->guiWins[6]->win,3, 3, "%d   ",currPos[1]);
+	update_panels();
+	doupdate();
 	steppers[0]->release();
 	steppers[1]->release();
  
+}
+
+void runGCode(CNC * cnc) 
+{
+	Controller * ctrl=cnc->controller;
+	int Xcase = 0,Ycase=0,Zcase=0,Gcase = 0;//to ensure the column os the different data in the instruction array.
+	while(ctrl->readableChar[Xcase]!='X'){Xcase++;}
+	while(ctrl->readableChar[Ycase]!='Y'){Ycase++;}
+	while(ctrl->readableChar[Zcase]!='Z'){Zcase++;}
+	while(ctrl->readableChar[Gcase]!='G'){Gcase++;}
+	int i,u;
+	int xp,yp,zp;
+	for(u=0;u<250;u++)
+	{
+		
+		switch((int)cnc->controller->instructions[u][Gcase])
+		{
+			case 0:
+				/*
+				for(i=0;i<NBRofSTPR-1;i++)
+					cnc->steppers[i]->setSpeed(300);*/
+				xp=ctrl->instructions[u][Xcase]*STPX_NBRofSTEP;
+				yp=ctrl->instructions[u][Ycase]*STPY_NBRofSTEP;
+				//zp=ctrl->instructions[u][Zcase]*STPZ_NBRofSTEP;
+				mvwprintw(cnc->application->guiWins[4]->win,3, 3, "u=%d   ",u);
+				mvwprintw(cnc->application->guiWins[4]->win,4, 3, "xp=%f   ",ctrl->instructions[u][Xcase]);
+				mvwprintw(cnc->application->guiWins[4]->win,5, 3, "yp=%f   ",ctrl->instructions[u][Ycase]);
+				update_panels();
+				doupdate();
+				//cnc->steppers[Z_AXIS]->step(zp);
+				//cnc->steppers[Z_AXIS]->release();
+				moveLine(cnc,xp,yp);
+				/*for(i=0;i<NBRofSTPR-1;i++)
+					cnc->steppers[i]->setSpeed(200);*/
+			break;
+			case 1:
+				xp=ctrl->instructions[u][Xcase]*STPX_NBRofSTEP;
+				yp=ctrl->instructions[u][Ycase]*STPY_NBRofSTEP;
+				//zp=ctrl->instructions[u][Zcase]*STPY_NBRofSTEP;
+				mvwprintw(cnc->application->guiWins[4]->win,3, 3, "u=%d   ",u);
+				mvwprintw(cnc->application->guiWins[4]->win,4, 3, "xp=%f   ",ctrl->instructions[u][Xcase]);
+				mvwprintw(cnc->application->guiWins[4]->win,5, 3, "yp=%f   ",ctrl->instructions[u][Ycase]);
+				update_panels();
+				doupdate();
+				//cnc->steppers[Z_AXIS]->step(zp);
+				//cnc->steppers[Z_AXIS]->release();
+				moveLine(cnc,xp,yp);
+			break;
+		}
+	}
+
+
 }
 

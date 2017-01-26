@@ -27,7 +27,7 @@
  *   Sets which wires should control the motor.
  */
 
-Stepper::Stepper(int number_of_steps, int motor_pin_1, int motor_pin_2, int motor_pin_3, int motor_pin_4, int speed,int limSwtch_pin_min, int limSwtch_pin_max)
+Stepper::Stepper(int number_of_steps, int motor_pin_1, int motor_pin_2, int motor_pin_3, int motor_pin_4, int speed,int accel,int limSwtch_pin_min, int limSwtch_pin_max)
 {
 	this->step_number = 0;      // which step the motor is on
 	
@@ -42,6 +42,7 @@ Stepper::Stepper(int number_of_steps, int motor_pin_1, int motor_pin_2, int moto
 	
 	this->speed = speed;        // the motor speed, in revolutions per minute
 	this->setSpeed(speed);
+	this->acceleration= accel;
 
 	// Arduino pins for the motor control connection:
 	this->motor_pin_1 = motor_pin_1;
@@ -67,10 +68,14 @@ Stepper::Stepper(int number_of_steps, int motor_pin_1, int motor_pin_2, int moto
 */
 void Stepper::setSpeed(long whatSpeed)
 {
+	this->speed=whatSpeed;
 	if(whatSpeed!=0&&this->number_of_steps!=0)
-  		this->step_delay = long(60)*long(1000) / this->number_of_steps / whatSpeed;
+  		this->step_delay = double(60)*double(1000) / this->number_of_steps / whatSpeed;//long(60)*long(1000) / this->number_of_steps / whatSpeed;
   	else
   		this->step_delay = 100000;
+  	
+  	
+  	
   //std::cout<<this->step_delay<<"\n";
 }
 
@@ -94,6 +99,7 @@ int Stepper::step(int steps_to_move)
   this->blocked=((digitalRead(limSwtch_pin_min)==0||digitalRead(limSwtch_pin_max)==0)?1:0);
   if((digitalRead(limSwtch_pin_min)==0&&this->direction==0)||(digitalRead(limSwtch_pin_max)==0&&this->direction==1))
   	return steps_left;
+  
   if ((std::clock() - this->last_step_time)/(double)CLOCKS_PER_SEC*1000 >= this->step_delay) {
       // get the timeStamp of when you stepped:
       this->last_step_time = std::clock();
@@ -162,6 +168,100 @@ void Stepper::stepMotor(int thisStep)
       break;
     } 
   }
+}
+
+int Stepper::stepA(int steps_to_move)
+{
+	int steps_left = abs(steps_to_move);
+	// ^speed
+	// |    ________
+	// |   /        \
+	// |  /          \
+	// | /            \
+	// |/              \
+	// +-----------------> time
+	// |-dt-|------|-dt-|
+	// dt(sec)=speed(rot/min) / acc(rot/min /sec)
+	// During this dt, the stepper makes dx(step)=speed(rot/min) * nbrofstepperROT(step/rot) * dt(sec) / 60 /2
+	
+	
+	
+	int stpSpd=this->speed;
+	// determine direction based on whether steps_to_mode is + or -:
+	if (steps_to_move > 0) {this->direction = 1;}
+	if (steps_to_move < 0) {this->direction = 0;}
+	
+	float dt =(float) this->speed/this->acceleration;
+	int dx = dt*this->speed*this->number_of_steps/120;
+	dx = (2*dx<steps_left)?dx:steps_left/2;
+	printf("s=%d  \n",dx);
+	float accS= this->acceleration*60/this->number_of_steps;
+	
+	int count=0;
+	float s=40;
+	this->setSpeed(s);
+	while(steps_left > 0)
+	{
+		this->blocked=((digitalRead(limSwtch_pin_min)==0||digitalRead(limSwtch_pin_max)==0)?1:0);
+		if((digitalRead(limSwtch_pin_min)==0&&this->direction==0)||(digitalRead(limSwtch_pin_max)==0&&this->direction==1))
+			return steps_left;
+		      
+		
+		if ((std::clock() - this->last_step_time)/(double)CLOCKS_PER_SEC*1000 >= this->step_delay) 
+		{
+			// ^speed
+			// |       ________
+			// |  -   /        \__
+			// |  Ds |         !1 |
+			// |  -__|         !st|
+			// | /!1 !         !  !\
+			// |/ !st!         !  ! \
+			// +-----------------------> time
+			//    |dt|---------|dt|
+			// Ds(rot/min)= acc(rot/min /sec) * dt(sec)
+			// dt is the time to make one step at the speed s
+			// 1step = speed(rot/min) * nbrofstepperROT(step/rot)* dt(sec) / 60
+  			if(count<dx)
+  			{
+  				s+=accS/s;
+  				this->setSpeed(s);
+  			}
+  			else if(steps_left< dx && s>40)
+  			{
+  				s-=accS/s;
+  				this->setSpeed(s);
+  			}
+  			printf("s=%f  \n",s);
+  			
+			
+			
+  			// get the timeStamp of when you stepped:
+			this->last_step_time = std::clock();
+			// increment or decrement the step number,
+			// depending on direction:
+			if (this->direction == 1) 
+			{
+				this->step_number++;
+				if (this->step_number == this->number_of_steps)
+					this->step_number = 0;
+			} 
+			else 
+			{ 
+				if (this->step_number == 0) 
+			  		this->step_number = this->number_of_steps;
+				this->step_number--;
+			}
+			// decrement the steps left:
+			steps_left--;
+			count ++;
+			// step the motor to step number 0, 1, 2, or 3:
+			stepMotor(this->step_number % 4);
+		}
+		
+	}
+	this->speed=stpSpd;
+	return 0;
+			
 }
 
 int Stepper::getSpeed()

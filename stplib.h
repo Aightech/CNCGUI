@@ -16,13 +16,14 @@
 class Stepper {
   public:
     // constructors:
-    Stepper(int number_of_steps, int motor_pin_1, int motor_pin_2, int motor_pin_3, int motor_pin_4, int speed,int limSwtch_pin_min, int limSwtch_pin_max);
+    Stepper(int number_of_steps, int motor_pin_1, int motor_pin_2, int motor_pin_3, int motor_pin_4, int speed,int accel,int limSwtch_pin_min, int limSwtch_pin_max);
 
     // speed setter method:
     void setSpeed(long whatSpeed);
 
     // mover method:
     int step(int number_of_steps);
+    int stepA(int steps_to_move);
 
     // release method:
     void release();
@@ -38,7 +39,8 @@ class Stepper {
     
     int direction;        // Direction of rotation
     int speed;          // Speed in RPMs
-    unsigned long step_delay;    // delay between steps, in ms, based on speed
+    int acceleration;          // Speed in RPMs
+    double step_delay;    // delay between steps, in ms, based on speed
     int number_of_steps;      // total number of steps this motor can take
     int pin_count;        // whether you're driving the motor with 2 or 4 pins
     int step_number;        // which step the motor is on

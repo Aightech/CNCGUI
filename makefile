@@ -6,7 +6,7 @@ LIBS = -L $(LIBDIR)/lib
 LDFLAGS = -lm -lncurses -lpanel -lwiringPi
 
 # fichiers du projet
-SRC = main.c guilib.c applib.c cnclib.cpp strlib.c stplib.cpp
+SRC = main.c guilib.c applib.c cnclib.c strlib.c stplib.cpp
 OBJ = $(SRC:.c=.o)
 EXEC = test 
 

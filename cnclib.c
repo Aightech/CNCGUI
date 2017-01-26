@@ -299,7 +299,20 @@ void manualMv(CNC * cnc,int axis,int step)
 		wclear(win->win);
 		win_show(win);
  }*/
- 
+
+void moveAxis(CNC * cnc,int axis,int newPos) 
+{
+	Stepper **steppers=cnc->steppers;
+	int * currPos=cnc->tools->pos;
+	steppers[axis]->step(newPos-currPos[axis]);
+	steppers[axis]->release();
+	currPos[axis]=newPos;
+	mvwprintw(cnc->application->guiWins[5+axis]->win,3, 3, "%d   ",currPos[axis]);
+	update_panels();
+	doupdate();
+
+}
+
 void moveLine(CNC * cnc,int newx,int newy) 
 {
 	Stepper **steppers=cnc->steppers;
@@ -372,34 +385,32 @@ void runGCode(CNC * cnc)
 		switch((int)cnc->controller->instructions[u][Gcase])
 		{
 			case 0:
-				/*
+				
 				for(i=0;i<NBRofSTPR-1;i++)
-					cnc->steppers[i]->setSpeed(300);*/
+					cnc->steppers[i]->setSpeed(300);
 				xp=ctrl->instructions[u][Xcase]*STPX_NBRofSTEP;
 				yp=ctrl->instructions[u][Ycase]*STPY_NBRofSTEP;
-				//zp=ctrl->instructions[u][Zcase]*STPZ_NBRofSTEP;
+				zp=ctrl->instructions[u][Zcase]*STPZ_NBRofSTEP;
 				mvwprintw(cnc->application->guiWins[4]->win,3, 3, "u=%d   ",u);
 				mvwprintw(cnc->application->guiWins[4]->win,4, 3, "xp=%f   ",ctrl->instructions[u][Xcase]);
 				mvwprintw(cnc->application->guiWins[4]->win,5, 3, "yp=%f   ",ctrl->instructions[u][Ycase]);
 				update_panels();
 				doupdate();
-				//cnc->steppers[Z_AXIS]->step(zp);
-				//cnc->steppers[Z_AXIS]->release();
+				moveAxis(cnc,Z_AXIS,zp);
 				moveLine(cnc,xp,yp);
-				/*for(i=0;i<NBRofSTPR-1;i++)
-					cnc->steppers[i]->setSpeed(200);*/
+				for(i=0;i<NBRofSTPR-1;i++)
+					cnc->steppers[i]->setSpeed(200);
 			break;
 			case 1:
 				xp=ctrl->instructions[u][Xcase]*STPX_NBRofSTEP;
 				yp=ctrl->instructions[u][Ycase]*STPY_NBRofSTEP;
-				//zp=ctrl->instructions[u][Zcase]*STPY_NBRofSTEP;
+				zp=ctrl->instructions[u][Zcase]*STPY_NBRofSTEP;
 				mvwprintw(cnc->application->guiWins[4]->win,3, 3, "u=%d   ",u);
 				mvwprintw(cnc->application->guiWins[4]->win,4, 3, "xp=%f   ",ctrl->instructions[u][Xcase]);
 				mvwprintw(cnc->application->guiWins[4]->win,5, 3, "yp=%f   ",ctrl->instructions[u][Ycase]);
 				update_panels();
 				doupdate();
-				//cnc->steppers[Z_AXIS]->step(zp);
-				//cnc->steppers[Z_AXIS]->release();
+				moveAxis(cnc,Z_AXIS,zp);
 				moveLine(cnc,xp,yp);
 			break;
 		}

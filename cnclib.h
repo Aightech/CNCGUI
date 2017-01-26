@@ -16,6 +16,7 @@ Tool *initTools();
 Stepper** setSteppers(CNC* cnc);
 float ** getGCode(CNC *cnc);
 void manualMv(CNC * cnc,int axis,int step);
+void moveAxis(CNC * cnc,int axis,int newPos);
 void moveLine(CNC * cnc,int newx,int newy);
 void runGCode(CNC * cnc);
 
